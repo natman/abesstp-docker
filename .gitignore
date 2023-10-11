@@ -1,0 +1,4 @@
+volumes/abesstp-db/*
+volumes/abesstp-web/**/files/assistance/*
+volumes/abesstp-web/**/files/js/*
+.env

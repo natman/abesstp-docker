@@ -1,0 +1,49 @@
+#
+# Pour avoir sous la main un serveur mail de debug, lancer la commande suivante :
+#   docker-compose -f docker-compose.yml -f docker-compose.mailhog.yml up -d  
+# Vous pourez alors consulter les mail fictifs envoyes par abesstp 
+# sur l'interface web ici http://127.0.0.1:8025
+#
+
+version: '3'
+
+services:
+
+  abesstp-web:
+    environment:
+      SMTP_TLS: "off"
+      SMTP_HOST: "abesstp-mailhog"
+      SMTP_PORT: "1025"
+      SMTP_MAILDOMAIN: "abes.fr"
+    depends_on:
+      - abesstp-mailhog
+
+  abesstp-web-clamav:
+    environment:
+      SMTP_TLS: "off"
+      SMTP_HOST: "abesstp-mailhog"
+      SMTP_PORT: "1025"
+    depends_on:
+      - abesstp-mailhog
+
+  abesstp-web-cron:
+    environment:
+      SMTP_TLS: "off"
+      SMTP_HOST: "abesstp-mailhog"
+      SMTP_PORT: "1025"
+    depends_on:
+      - abesstp-mailhog
+
+  # un serveur SMTP fictif permettant de debugguer les emails envoyés
+  abesstp-mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: abesstp-mailhog
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    environment:
+      MH_SMTP_BIND_ADDR: "0.0.0.0:1025" # cf https://github.com/mailhog/MailHog/blob/master/docs/CONFIG.md
+    ports:
+      - 8025:8025
+    logging:
+      driver: none # pas de log pour mailhog pour ne pas polluer le debug

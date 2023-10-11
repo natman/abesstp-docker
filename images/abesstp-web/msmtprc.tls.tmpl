@@ -1,0 +1,23 @@
+# config msmtp pour envoyer des mails
+# cf https://manpages.ubuntu.com/manpages/trusty/man1/msmtp.1.html
+# logfile - : signifie qu'on affiche les logs sur stdout (log de docker)
+defaults
+
+account default
+tls on
+tls_starttls on
+tls_certcheck off
+protocol smtp
+auth on
+host ${SMTP_HOST}
+port ${SMTP_PORT}
+user ${SMTP_USER}
+password ${SMTP_PASSWORD}
+domain ${SMTP_MAILDOMAIN}
+
+# réglage du return-path
+auto_from off
+from ${SMTP_RETURN_PATH}
+
+#logfile /var/log/msmtp.log
+logfile -

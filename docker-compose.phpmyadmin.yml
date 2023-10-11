@@ -1,0 +1,27 @@
+#
+# Pour avoir sous la main un phpmyadmin, lancer la commande suivante :
+#   docker-compose -f docker-compose.yml -f docker-compose.phpmyadmin.yml up -d  
+# Il sera alors accessible sur http://127.0.0.1:8001
+#
+
+version: '3'
+
+services:
+
+  abesstp-phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    container_name: abesstp-phpmyadmin
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    environment:
+      PHP_UPLOAD_MAX_FILESIZE: "2G"
+    links:
+      - abesstp-db:db
+    depends_on:
+      - abesstp-db
+    ports:
+      - 8001:80
+    logging:
+      driver: none # pas de log pour phpmyadmin pour ne pas polluer

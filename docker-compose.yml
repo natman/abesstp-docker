@@ -1,0 +1,203 @@
+version: '3'
+
+services:
+
+  abesstp-web:
+    build: ./images/abesstp-web
+    image: abesstp-web:php-5.6.40-apache
+    container_name: abesstp-web
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    environment:
+      MYSQL_DATABASE: svp
+      MYSQL_USER: svp
+      MYSQL_PASSWORD: ${ABESSTP_MYSQL_PASSWORD}
+      SMTP_TLS: ${ABESSTP_SMTP_TLS:-off}
+      SMTP_HOST: ${ABESSTP_SMTP_HOST:-127.0.0.1}
+      SMTP_PORT: ${ABESSTP_SMTP_PORT:-25}
+      SMTP_MAILDOMAIN: ${ABESSTP_SMTP_MAILDOMAIN:-abes.fr}
+      SMTP_RETURN_PATH: ${ABESSTP_SMTP_RETURN_PATH:-no-reply@abes.fr}
+      SMTP_USER: ${ABESSTP_SMTP_USER}
+      SMTP_PASSWORD: ${ABESSTP_SMTP_PASSWORD}
+    ports:
+      - 8080:80
+    depends_on:
+      - abesstp-db
+    volumes:
+      - ./volumes/abesstp-web/drupal/:/var/www/html/:ro
+      - ./volumes/abesstp-web/drupal/sites/stp.abes.fr/files/:/var/www/html/sites/stp.abes.fr/files/:rw
+    labels:
+      # versement dans le puits de log de l'Abes
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/module=apache2"
+      - "co.elastic.logs/fileset.stdout=access"
+      - "co.elastic.logs/fileset.stderr=error"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
+      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=Httpd"
+
+
+  abesstp-web-clamav:
+    image: abesesr/clamscan-docker:1.4.7
+    container_name: abesstp-web-clamav
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    depends_on:
+      - abesstp-web
+    environment:
+      SCAN_AT_STARTUP: ${ABESSTP_WEB_CLAMAV_SCAN_AT_STARTUP}
+      FRESHCLAM_AT_STARTUP: ${ABESSTP_WEB_CLAMAV_FRESHCLAM_AT_STARTUP}
+      SCAN_ONLY_NEW_FILES: "1"
+      FOLDER_TO_SCAN: "/folder-to-scan/"
+      ALERT_MAILTO: ${ABESSTP_WEB_CLAMAV_ALERT_MAILTO}
+      ALERT_SUBJECT: ${ABESSTP_WEB_CLAMAV_ALERT_SUBJECT}
+      CRON_CLAMSCAN: ${ABESSTP_WEB_CLAMAV_CRON_CLAMSCAN}
+      SMTP_TLS: ${ABESSTP_SMTP_TLS:-off}
+      SMTP_HOST: ${ABESSTP_SMTP_HOST:-127.0.0.1}
+      SMTP_PORT: ${ABESSTP_SMTP_PORT:-25}
+      SMTP_MAILDOMAIN: ${ABESSTP_SMTP_MAILDOMAIN:-abes.fr}
+      SMTP_RETURN_PATH: ${ABESSTP_SMTP_RETURN_PATH:-no-reply@abes.fr}
+      SMTP_USER: ${ABESSTP_SMTP_USER}
+      SMTP_PASSWORD: ${ABESSTP_SMTP_PASSWORD}
+    volumes:
+      - ./volumes/abesstp-web/drupal/sites/stp.abes.fr/files/:/folder-to-scan/:rw
+    labels:
+      # versement dans le puits de log de l'Abes
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
+      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=adhoc"
+      # pour gérer les logs multiline, cf https://www.elastic.co/guide/en/beats/filebeat/current/multiline-examples.html
+      # toutes les 15 minutes il y a un scan qui peut durer longtemps (d'ou le timeout de 600s) avec 
+      # a la fin un résumé du scan avec des logs qui ressemblent a ceci :
+      # ----------- SCAN SUMMARY -----------
+      - "co.elastic.logs/multiline.type=pattern"
+      - "co.elastic.logs/multiline.pattern=^----------- SCAN SUMMARY -----------"
+      - "co.elastic.logs/multiline.negate=true"
+      - "co.elastic.logs/multiline.match=after"
+      - "co.elastic.logs/multiline.timeout=600s"
+
+
+  abesstp-web-cron:
+    build: ./images/abesstp-web-cron
+    image: abesstp-web-cron:latest
+    container_name: abesstp-web-cron
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    depends_on:
+      - abesstp-web
+    environment:
+      ABESSTP_CRON_BASEURL: http://abesstp-web
+      SMTP_TLS: ${ABESSTP_SMTP_TLS:-off}
+      SMTP_HOST: ${ABESSTP_SMTP_HOST:-127.0.0.1}
+      SMTP_PORT: ${ABESSTP_SMTP_PORT:-25}
+      SMTP_MAILDOMAIN: ${ABESSTP_SMTP_MAILDOMAIN:-abes.fr}
+      SMTP_RETURN_PATH: ${ABESSTP_SMTP_RETURN_PATH:-no-reply@abes.fr}
+      SMTP_USER: ${ABESSTP_SMTP_USER}
+      SMTP_PASSWORD: ${ABESSTP_SMTP_PASSWORD}
+    volumes:
+      - ./volumes/abesstp-web/:/var/www/:rw
+    labels:
+      # versement dans le puits de log de l'Abes
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
+      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=adhoc"
+
+
+  abesstp-web-gitpuller:
+    image: abesesr/gitpuller-docker:1.1.0
+    container_name: abesstp-web-gitpuller
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    environment:
+      GIT_AS_UID: ${ABESSTP_WEB_GITPULLER_GIT_AS_UID}
+      GIT_AS_GID: ${ABESSTP_WEB_GITPULLER_GIT_AS_GID}
+    volumes:
+      - ./:/folder-to-git-pull/:rw
+        #      - /home/gully/.ssh/id_rsa:/root/.ssh/id_rsa.orig
+        #      - /home/gully/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub.orig
+    labels:
+      # versement dans le puits de log de l'Abes
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
+      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=adhoc"
+      # pour gérer les logs multiline, cf https://www.elastic.co/guide/en/beats/filebeat/current/multiline-examples.html
+      # les logs de ce conteneur ressemblent à ceci:
+      # --> 2021-08-06 13:16:01 - Update /folder-to-git-pull/ with a git pull
+      # Already up to date.
+      - "co.elastic.logs/multiline.type=pattern"
+      - "co.elastic.logs/multiline.pattern=^--> "
+      - "co.elastic.logs/multiline.negate=true"
+      - "co.elastic.logs/multiline.match=after"
+      - "co.elastic.logs/multiline.timeout=20s"
+
+
+  abesstp-db:
+    image: mysql:5.5.62
+    container_name: abesstp-db
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ABESSTP_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: svp
+      MYSQL_USER: svp
+      MYSQL_PASSWORD: ${ABESSTP_MYSQL_PASSWORD}
+    volumes:
+      - ./volumes/abesstp-db/mysql/:/var/lib/mysql/
+    labels:
+      # versement dans le puits de log de l'Abes
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/module=mysql"
+      - "co.elastic.logs/fileset.stderr=error"
+      # A noter qu'il existe aussi slowlog cf https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-module-mysql.html#configuring-mysql-module
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
+      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=Mysql"
+
+
+  abesstp-db-dumper:
+    image: fradelg/mysql-cron-backup:1.2.0
+    container_name: abesstp-db-dumper
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
+    depends_on:
+      - abesstp-db
+    volumes:
+      - ./volumes/abesstp-db/dump/:/backup/
+    environment:
+      MYSQL_HOST: abesstp-db
+      MYSQL_USER: root
+      MYSQL_PASS: ${ABESSTP_MYSQL_ROOT_PASSWORD}
+      MAX_BACKUPS: 15
+      INIT_BACKUP: 1
+      # Every day at 03:00
+      CRON_TIME: "0 3 * * *"
+    labels:
+      # versement dans le puits de log de l'Abes
+      - "co.elastic.logs/enabled=true"
+      - "co.elastic.logs/processors.add_fields.target="
+      - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
+      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=adhoc"
+      # log multiline aussi pour ce conteneur avec des lignes qui ressemblent à ceci:
+      # => Backup started
+      # et le multiline peut s'etaler sur plusieurs minutes (reglage du timeout ci-dessous a 300, soit 5 minutes)
+      - "co.elastic.logs/multiline.type=pattern"
+      - "co.elastic.logs/multiline.pattern=^=> Backup started"
+      - "co.elastic.logs/multiline.negate=true"
+      - "co.elastic.logs/multiline.match=after"
+      - "co.elastic.logs/multiline.timeout=300s"
+
