@@ -44,6 +44,6 @@ services:
     environment:
       MH_SMTP_BIND_ADDR: "0.0.0.0:1025" # cf https://github.com/mailhog/MailHog/blob/master/docs/CONFIG.md
     ports:
-      - 8025:8025
+      - ${ABESSTP_MAILHOG_HTTP_PORT}:8025
     logging:
       driver: none # pas de log pour mailhog pour ne pas polluer le debug

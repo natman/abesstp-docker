@@ -22,7 +22,7 @@ services:
       SMTP_USER: ${ABESSTP_SMTP_USER}
       SMTP_PASSWORD: ${ABESSTP_SMTP_PASSWORD}
     ports:
-      - 8080:80
+      - ${ABESSTP_WEB_HTTP_PORT}:80
     depends_on:
       - abesstp-db
     volumes:
