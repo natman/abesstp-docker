@@ -122,7 +122,7 @@ services:
       GIT_AS_UID: ${ABESSTP_WEB_GITPULLER_GIT_AS_UID}
       GIT_AS_GID: ${ABESSTP_WEB_GITPULLER_GIT_AS_GID}
     volumes:
-      - ./:/folder-to-git-pull/:rw
+      - ./volumes/abesstp-web/:/folder-to-git-pull/:rw
         #      - /home/gully/.ssh/id_rsa:/root/.ssh/id_rsa.orig
         #      - /home/gully/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub.orig
     labels:
