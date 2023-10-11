@@ -1,6 +1,6 @@
 # abesstp-docker
 
-Dépôt GIT regroupant le code source d'[AbesStp](https://stp.abes.fr) et sa configuration docker permettant de déployer l'application.
+Configuration docker 🐳 pour déployer l'application [AbesStp](https://stp.abes.fr) (outil de ticketing de l'Abes)
 
 ![](https://docs.google.com/drawings/d/e/2PACX-1vT7cxu8j95PuHJ7VGMf5XxQ7C3WyHUYcPmptMQKKtkTPsSDHtSAQQ6qVNMillpRbisrN_b-gbsjuplr/pub?w=200)
 
