@@ -17,9 +17,12 @@ Pour installer AbesStp depuis zéro, un prérequis et de disposer d'un serveur a
 
 ```bash
 cd /opt/pod/
-# pour un déploiement en test, remplacer "-branch main" par "-branch develop"
-git clone -branch main https://git.abes.fr/depots/abesstp-docker
-cd abesstp-docker/
+git clone https://github.com/abes-esr/abesstp-docker/
+
+# récupération du code source d'AbesSTP (non ouvert)
+cd /opt/pod/abesstp-docker/
+git clone https://git.abes.fr/depots/abesstp.git ./volumes/abesstp-web/
+
 
 # indiquez les mots de passes souhaités et les différents paramètres
 # en personnalisant le contenu de .env (ex: mot de passes mysql et param smtp)
