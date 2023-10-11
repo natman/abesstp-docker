@@ -22,7 +22,7 @@ git clone https://github.com/abes-esr/abesstp-docker/
 # récupération du code source d'AbesSTP (non ouvert)
 cd /opt/pod/abesstp-docker/
 git clone https://git.abes.fr/depots/abesstp.git ./volumes/abesstp-web/
-
+chmod -R 777 volumes/abesstp-web/
 
 # indiquez les mots de passes souhaités et les différents paramètres
 # en personnalisant le contenu de .env (ex: mot de passes mysql et param smtp)
