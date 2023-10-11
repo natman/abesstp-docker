@@ -1,4 +1,5 @@
 FROM php:5.6.40-apache
+COPY ./sources.list /etc/apt/sources.list
 
 # pour avoir un client SMTP dans le conteneur (msmtp)
 # gettext-base: pour disposer de la commande envsubst (systeme de template)
