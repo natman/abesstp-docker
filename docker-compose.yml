@@ -23,6 +23,8 @@ services:
       SMTP_PASSWORD: ${ABESSTP_SMTP_PASSWORD}
     ports:
       - ${ABESSTP_WEB_HTTP_PORT}:80
+      # 8080 est un vieux port à supprimer une fois la bascule sur le nouveau port réalisée (12/10/2023)
+      - 8080:80
     depends_on:
       - abesstp-db
     volumes:
