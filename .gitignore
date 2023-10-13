@@ -4,3 +4,8 @@ volumes/abesstp-web/**/files/js/*
 .env
 *.sql.gz
 *.sql
+
+# ce fichier est utilisé sur l'env de dev
+# il est généré à partir de docker-compose.phpmyadmin.yml 
+# et docker-compose.mailhog.yml et ne doit pas être versionné
+docker-compose.override.yml

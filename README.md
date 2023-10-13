@@ -44,7 +44,36 @@ gunzip -c latest.svp.sql.gz | docker exec -i abesstp-db bash -c 'mysql --user=ro
 docker-compose build
 ```
 
-A noter : pour déployer abesstp-docker en local ou sur le serveur de test, il faut remplacer `git clone -branch main` par `git clone -branch develop`
+A noter que pour déployer `abesstp-docker` en local, en dev ou en test il faut également lancer cette commande qui aura pour effet de générer un fichier docker-compose.override.yml qui mettra à disposition les outils phpmyadmin et mailhog dans des conteneurs dédiés (cf section plus bas) :
+```bash
+cd /opt/pod/abesstp-docker/
+echo 'version: '3'
+services:
+  # ajout du conteneur mailhog
+  # avec surcharge des autres conteneurs
+  abesstp-mailhog:
+    extends:
+      file: docker-compose.mailhog.yml
+      service: abesstp-mailhog
+  abesstp-web:
+    extends:
+      file: docker-compose.mailhog.yml
+      service: abesstp-web
+  abesstp-web-clamav:
+    extends:
+      file: docker-compose.mailhog.yml
+      service: abesstp-web-clamav
+  abesstp-web-cron:
+    extends:
+      file: docker-compose.mailhog.yml
+      service: abesstp-web-cron
+  # ajout du conteneur phpmyadmin
+  abesstp-phpmyadmin:
+    extends:
+      file: docker-compose.phpmyadmin.yml
+      service: abesstp-phpmyadmin
+' > docker-compose.override.yml
+```
 
 ## Démarrage d'AbesSTP
 
@@ -54,8 +83,9 @@ cd /opt/pod/abesstp-docker/
 docker-compose up -d
 ```
 Il est alors possible d'acceder a abesstp sur l'URL suivante :
-- http://diplotaxis2-test.v202.abes.fr:8080/ (en test)
-- http://diplotaxis2-prod.v102.abes.fr:8080/ (en prod)
+- http://localhost:29800/ (en local)
+- http://diplotaxis2-test.v202.abes.fr:29800/ (en test)
+- http://diplotaxis2-prod.v102.abes.fr:29800/ (en prod)
 
 ## Arret et redémarrage d'AbesSTP
 
@@ -70,14 +100,14 @@ docker-compose restart
 ## Configuration de l'URL publique d'AbesSTP
 
 Pour accéder à AbesSTP il est possible d'utiliser son URL interne (en HTTP) à des fins de tests :
-- http://diplotaxis2-test.v202.abes.fr:8080/ (en test)
-- http://diplotaxis2-prod.v102.abes.fr:8080/ (en prod)
+- http://diplotaxis2-test.v202.abes.fr:29800/ (en test)
+- http://diplotaxis2-prod.v102.abes.fr:29800/ (en prod)
 
 Mais pour l'utilisateur final il est nécessaire de faire correspondre une URL publique en HTTPS :
 - https://stp-test.abes.fr (en test)
 - https://stp.abes.fr (en prod)
 
-L'architecture mise en place pour permettre ceci est la configuration du reverse proxy de l'Abes (raiponce) qui permet d'associer l'URL publique en HTTPS avec l'URL interne d'AbesSTP. Voici un extrait de la configuration Apache permettant de paramétrer l'URL de https://stp-test.abes.fr/ sur son URL interne http://diplotaxis2-test.v202.abes.fr:8080/ :
+L'architecture mise en place pour permettre ceci est la configuration du reverse proxy de l'Abes (raiponce) qui permet d'associer l'URL publique en HTTPS avec l'URL interne d'AbesSTP. Voici un extrait de la configuration Apache permettant de paramétrer l'URL de https://stp-test.abes.fr/ sur son URL interne http://diplotaxis2-test.v202.abes.fr:29800/ :
 
 ```apache
 <VirtualHost *:443>
@@ -93,7 +123,7 @@ L'architecture mise en place pour permettre ceci est la configuration du reverse
 
   Header add Set-Cookie "ROUTEID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
   <Proxy balancer://cluster-stp-diplotaxis>
-    BalancerMember http://diplotaxis2-test.v202.abes.fr:8080 loadfactor=1 connectiontimeout=600 timeout=600
+    BalancerMember http://diplotaxis2-test.v202.abes.fr:29800 loadfactor=1 connectiontimeout=600 timeout=600
     ProxySet stickysession=ROUTEID
   </Proxy>
 
@@ -144,14 +174,23 @@ docker exec -i abesstp-db bash -c 'mysqldump --user=root --password=$MYSQL_ROOT_
 
 ## Debug d'AbesSTP
 
-Pour lancer l'application avec tous les outils d'administration et de debug on peut utiliser simultanément tous les .yml :
-```bash
-docker-compose -f docker-compose.yml \
-               -f docker-compose.mailhog.yml \
-               -f docker-compose.phpmyadmin.yml \
-               up -d
-```
+Pour lancer l'application avec tous les outils d'administration et de debug vous devez générer le fichier `docker-compose.override.yml` comme indiqué dans la procédure d'installation plus haut. Cette configuration permettra de lancer les deux conteneurs décrits ci-dessous : phpmyadmin et mailhog.
 
+### phpmyadmin
+
+Le conteneur `abesstp-phpmyadmin` propose l'outil phpmyadmin pour administrer la base mysql d'AbesSTP, sont URL est :
+- http://localhost:29801/ : en local
+- http://diplotaxis2-test.v202.abes.fr:29801/ : en test
+
+### mailhog
+
+Le conteneur `abesstp-mailhog` propose l'outil mailhog qui permet de simuler un serveur de mail (SMTP) fictif. Il intercepte ainsi les mails envoyés par abesstp et propose une interface web pour les consulter.
+
+Il est alors possible d'acceder a mailhog sur l'URL suivante :
+- http://localhost:29802/ : en local
+- http://diplotaxis2-test.v202.abes.fr:29802/ : en test
+
+Vous pouvez alors par exemple créer un ticket dans abesstp et le mail de notification ne sera pas réèlement envoyé car il sera intercepté par mailhog.
 
 ### logs
 
@@ -160,31 +199,6 @@ cd /opt/pod/abesstp-docker/
 docker-compose logs
 ```
 
-### phpmyadmin
-
-Un conteneur propose phpmyadmin, son nom est `abesstp-phpmyadmin` et il ecoute sur le port 8001.
-Pour démarrer phpmyadmin, voici la commande à utiliser :
-
-```bash
-docker-compose -f docker-compose.yml -f docker-compose.phpmyadmin.yml up -d
-```
-
-Il est alors possible d'acceder a phpmyadmin sur l'URL suivante (remplacer `diplotaxis2-test.v202.abes.fr` par le nom du serveur si différent) : 
-http://diplotaxis2-test.v202.abes.fr:8001/
-
-### mailhog
-
-Un conteneur propose mailhog qui permet de simuler un serveur de mail (SMTP) fictif. Il intercepte ainsi les mails envoyés par abesstp et propose une interface web pour les consulter.
-Pour démarrer mailhog, voici la commande à utiliser :
-
-```bash
-docker-compose -f docker-compose.yml -f docker-compose.mailhog.yml up -d
-```
-
-Il est alors possible d'acceder a mailhog sur l'URL suivante (remplacer `diplotaxis2-test.v202.abes.fr` par le nom du serveur si différent) : 
-http://diplotaxis2-test.v202.abes.fr:8025/
-
-Vous pouvez alors par exemple créer un ticket dans abesstp et le mail de notification ne sera pas réèlement envoyé car il sera intercepté par mailhog.
 
 ## Architecture d'AbesSTP
 
