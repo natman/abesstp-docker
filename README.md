@@ -47,7 +47,7 @@ docker-compose build
 A noter que pour déployer `abesstp-docker` en local, en dev ou en test il faut également lancer cette commande qui aura pour effet de générer un fichier docker-compose.override.yml qui mettra à disposition les outils phpmyadmin et mailhog dans des conteneurs dédiés (cf section plus bas) :
 ```bash
 cd /opt/pod/abesstp-docker/
-echo 'version: '3'
+echo "version: '3'
 services:
   # ajout du conteneur mailhog
   # avec surcharge des autres conteneurs
@@ -72,7 +72,7 @@ services:
     extends:
       file: docker-compose.phpmyadmin.yml
       service: abesstp-phpmyadmin
-' > docker-compose.override.yml
+" > docker-compose.override.yml
 ```
 
 ## Démarrage d'AbesSTP
