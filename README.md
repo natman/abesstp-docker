@@ -20,9 +20,9 @@ cd /opt/pod/
 git clone https://github.com/abes-esr/abesstp-docker/
 
 # récupération du code source d'AbesSTP (non ouvert)
+# pour qu'il puisse être embarqué dans l'image d'abesstp-web
 cd /opt/pod/abesstp-docker/
-git clone https://git.abes.fr/depots/abesstp.git ./volumes/abesstp-web/
-chmod -R 777 volumes/abesstp-web/
+git clone https://git.abes.fr/depots/abesstp.git ./images/abesstp-web/src/
 
 # indiquez les mots de passes souhaités et les différents paramètres
 # en personnalisant le contenu de .env (ex: mot de passes mysql et param smtp)
@@ -30,8 +30,8 @@ cp .env-dist .env
 
 # copier le contenu de files/assistance/ depuis les dernières sauvegardes (pièces jointes des tickets AbesSTP)
 rsync -rav \
-  sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/volumes/abesstp-web/drupal/sites/svp.abes.fr/files/assistance/ \
-  ./volumes/abesstp-web/drupal/sites/svp.abes.fr/files/assistance/
+  sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/volumes/abesstp-web/files-assistance/ \
+  ./volumes/abesstp-web/files-assistance/
 
 # import du dump de la bdd depuis les dernières sauvegardes
 # A noter : le temps de chargement prend environ 5 minutes
@@ -44,7 +44,7 @@ gunzip -c latest.svp.sql.gz | docker exec -i abesstp-db bash -c 'mysql --user=ro
 docker-compose build
 ```
 
-A noter que pour déployer `abesstp-docker` en local, en dev ou en test il faut également lancer cette commande qui aura pour effet de générer un fichier docker-compose.override.yml qui mettra à disposition les outils phpmyadmin et mailhog dans des conteneurs dédiés (cf section plus bas) :
+A noter que pour déployer `abesstp-docker` en local, en dev ou en test il faut également lancer cette commande qui aura pour effet de générer un fichier `docker-compose.override.yml` qui mettra à disposition les outils phpmyadmin et mailhog dans des conteneurs dédiés (cf section plus bas) :
 ```bash
 cd /opt/pod/abesstp-docker/
 echo "version: '3'
@@ -140,16 +140,14 @@ Les configurations complètes et à jour se trouvent dans `/etc/httpd/conf.app/s
 
 Les sauvegardes doivent être paramétrées sur ces répertoires clés :
 - la base de données : des dumps sont générés automatiquement toutes les nuits dans `/opt/pod/abesstp-docker/volumes/abesstp-db/dump/` 
-- le répertoire `/opt/pod/abesstp-docker/volumes/abesstp-web/drupal/sites/svp.abes.fr/files/` car
-  - on y retrouve les pièces jointes (fichiers) des tickets d'AbesSTP dans le sous répertoire `files/assistance/`
-  - on y retrouve les fichiers déposés via winscp comme des PDF comme par exemple celui de la charte graphique
+- le répertoire `/opt/pod/abesstp-docker/volumes/abesstp-web/files-assistance/` car on y retrouve les pièces jointes (fichiers) des tickets d'AbesSTP dans le sous répertoire `files/assistance/`
 
 Pour restaurer les pièces jointes aux tickets AbesSTP depuis les sauvegardes :
 ```bash
 cd /opt/pod/abesstp-docker/
 rsync -rav \
-  sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/volumes/abesstp-web/drupal/sites/svp.abes.fr/files/assistance/ \
-  ./volumes/abesstp-web/drupal/sites/svp.abes.fr/files/assistance/
+  sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/volumes/abesstp-web/files-assistance/ \
+  ./volumes/abesstp-web/files-assistance/
 ```
 
 Pour restaurer la base de données depuis un dump :
@@ -224,7 +222,7 @@ Les conteneurs docker suivants sont alors disponibles et préèconfiguré via le
 - `abesstp-mailhog` : conteneur utilisé pour intercepter et visualiser les mails envoyés à l'exterieur depuis l'application abesstp (utile uniquement pour le debug)
 
 Les volumes docker suivants sont utilisés :
-- `volumes/abesstp-web/drupal/` : contient les sources d'AbesSTP (cf paragraphe suivant)
+- `volumes/abesstp-web/files-assistance/` : contient les pièces jointes des tickets d'AbesSTP
 - `volumes/abesstp-db/mysql/` : contient les données binaires mysql de la base de données d'abesstp
 - `volumes/abesstp-db/dump/` : contient les dumps de la base de données d'abesstp (générés quotidiennement)
 

@@ -12,7 +12,7 @@ if [ ! -z $1 ]
 	then 
 IFS='
 '
-DRUPAL="/var/www/drupal/sites/stp.abes.fr/"
+DRUPAL="/var/www/html/sites/stp.abes.fr/"
 SUFFIX="files"
 DIR="$DRUPAL/$SUFFIX"
 cd $DIR

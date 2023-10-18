@@ -5,17 +5,17 @@ BASH_ENV=/etc/environment
 # Drupal cron:
 * * * * * wget --no-check-certificate -O - --tries=1 -nv ${ABESSTP_CRON_BASEURL}/cron.php >/proc/1/fd/1 2>/proc/1/fd/2
 
-# Alerte de nouveaux fichiers dans DRUPAL : /var/www/drupal/sites/stp.abes.fr/files
+# Alerte de nouveaux fichiers dans DRUPAL : /var/www/html/sites/stp.abes.fr/files
 # NBT - 20131223
 0 7 * * * /usr/local/bin/lien.sh 86400 >/proc/1/fd/1 2>/proc/1/fd/2
 
 # Kill "PHP" files in Drupal in file upload space - MCN 20121210
-* * * * * rm -f -v /var/www/drupal/sites/stp.abes.fr/files/*.php* /var/www/drupal/sites/svp.abes.fr/files/assistance/*.php* >/proc/1/fd/1 2>/proc/1/fd/2
+* * * * * rm -f -v /var/www/html/sites/stp.abes.fr/files/*.php* /var/www/html/sites/stp.abes.fr/files/assistance/*.php* >/proc/1/fd/1 2>/proc/1/fd/2
 
 # Nettoyage des pièces jointes d'AbesSTP non accédées depuis plus de 365j
 # cf https://git.abes.fr/depots/abesstp-docker/-/issues/26
 # cf https://intranet.abes.fr/extranet/index.php?menuaction=tracker.uitracker.edit&tr_id=14637
-* * * * * tmpwatch --nodirs 365d /var/www/drupal/sites/svp.abes.fr/files/assistance/ >/proc/1/fd/1 2>/proc/1/fd/2
+* * * * * tmpwatch --nodirs 365d /var/www/html/sites/stp.abes.fr/files/assistance/ >/proc/1/fd/1 2>/proc/1/fd/2
 
 
 # An empty line is required at the end of this file for a valid cron file.

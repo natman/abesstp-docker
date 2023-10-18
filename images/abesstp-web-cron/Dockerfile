@@ -3,13 +3,17 @@ FROM rockylinux:8
 # vim: pour debug de l'image plus facile
 RUN yum install -y vim
 
+# system pour appeler periodiquement cron.php (via wget)
+RUN yum install -y wget
+
+# system pour nettoyer periodiquement les vielles pieces jointes d'abesstp
+RUN yum install -y tmpwatch
+
 # systeme pour les crontab
 # cronie: pour la crontab qui gère bien les signaux CTRL+C
 # gettext: pour avoir envsubst qui permet de gérer les template pour la crontab
 RUN yum install -y cronie gettext && \
     crond -V && rm -rf /etc/cron.*/*
-COPY ./crontab-tasks /etc/local/etc/cron.d/crontab-tasks
-RUN crontab /etc/local/etc/cron.d/crontab-tasks
 
 # system pour envoyer les mails
 # epel-release: pour que msmtp puisse être installé
@@ -17,14 +21,13 @@ RUN crontab /etc/local/etc/cron.d/crontab-tasks
 RUN yum -y install epel-release && yum makecache
 RUN yum install -y msmtp mailx
 RUN yum install -y langpacks-en glibc-all-langpacks
+
+# configuration pour les crontab
+COPY ./crontab-tasks /etc/local/etc/cron.d/crontab-tasks
+RUN crontab /etc/local/etc/cron.d/crontab-tasks
+# configuration pour envoyer les mail
 COPY ./msmtprc.tls.tmpl /etc/
 COPY ./msmtprc.notls.tmpl /etc/
-
-# system pour appeler periodiquement cron.php (via wget)
-RUN yum install -y wget
-
-# system pour nettoyer periodiquement les vielles pieces jointes d'abesstp
-RUN yum install -y tmpwatch
 
 # script de comparaison de files/assistance/
 COPY ./lien.sh /usr/local/bin/lien.sh

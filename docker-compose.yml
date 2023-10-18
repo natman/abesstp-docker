@@ -26,8 +26,7 @@ services:
     depends_on:
       - abesstp-db
     volumes:
-      - ./volumes/abesstp-web/drupal/:/var/www/html/:ro
-      - ./volumes/abesstp-web/drupal/sites/stp.abes.fr/files/:/var/www/html/sites/stp.abes.fr/files/:rw
+      - ./volumes/abesstp-web/files-assistance/:/var/www/html/sites/stp.abes.fr/files/assistance/:rw
     labels:
       # versement dans le puits de log de l'Abes
       - "co.elastic.logs/enabled=true"
@@ -64,7 +63,7 @@ services:
       SMTP_USER: ${ABESSTP_SMTP_USER}
       SMTP_PASSWORD: ${ABESSTP_SMTP_PASSWORD}
     volumes:
-      - ./volumes/abesstp-web/drupal/sites/stp.abes.fr/files/:/folder-to-scan/:rw
+      - ./volumes/abesstp-web/files/assistance/:/folder-to-scan/:rw
     labels:
       # versement dans le puits de log de l'Abes
       - "co.elastic.logs/enabled=true"
@@ -102,44 +101,13 @@ services:
       SMTP_USER: ${ABESSTP_SMTP_USER}
       SMTP_PASSWORD: ${ABESSTP_SMTP_PASSWORD}
     volumes:
-      - ./volumes/abesstp-web/:/var/www/:rw
+      - ./volumes/abesstp-web/files-assistance/:/var/www/html/sites/stp.abes.fr/files/assistance/:rw
     labels:
       # versement dans le puits de log de l'Abes
       - "co.elastic.logs/enabled=true"
       - "co.elastic.logs/processors.add_fields.target="
       - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
       - "co.elastic.logs/processors.add_fields.fields.abes_middleware=adhoc"
-
-
-  abesstp-web-gitpuller:
-    image: abesesr/gitpuller-docker:1.1.0
-    container_name: abesstp-web-gitpuller
-    restart: unless-stopped
-    mem_limit: ${MEM_LIMIT}
-    memswap_limit: ${MEM_LIMIT}
-    cpus: ${CPU_LIMIT}
-    environment:
-      GIT_AS_UID: ${ABESSTP_WEB_GITPULLER_GIT_AS_UID}
-      GIT_AS_GID: ${ABESSTP_WEB_GITPULLER_GIT_AS_GID}
-    volumes:
-      - ./volumes/abesstp-web/:/folder-to-git-pull/:rw
-        #      - /home/gully/.ssh/id_rsa:/root/.ssh/id_rsa.orig
-        #      - /home/gully/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub.orig
-    labels:
-      # versement dans le puits de log de l'Abes
-      - "co.elastic.logs/enabled=true"
-      - "co.elastic.logs/processors.add_fields.target="
-      - "co.elastic.logs/processors.add_fields.fields.abes_appli=abesstp"
-      - "co.elastic.logs/processors.add_fields.fields.abes_middleware=adhoc"
-      # pour gérer les logs multiline, cf https://www.elastic.co/guide/en/beats/filebeat/current/multiline-examples.html
-      # les logs de ce conteneur ressemblent à ceci:
-      # --> 2021-08-06 13:16:01 - Update /folder-to-git-pull/ with a git pull
-      # Already up to date.
-      - "co.elastic.logs/multiline.type=pattern"
-      - "co.elastic.logs/multiline.pattern=^--> "
-      - "co.elastic.logs/multiline.negate=true"
-      - "co.elastic.logs/multiline.match=after"
-      - "co.elastic.logs/multiline.timeout=20s"
 
 
   abesstp-db:

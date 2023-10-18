@@ -11,13 +11,23 @@ RUN set -x \
 COPY ./msmtprc.tls.tmpl /etc/
 COPY ./msmtprc.notls.tmpl /etc/
 
+# configuration de php et des extensions nécessaires
 RUN docker-php-ext-install gd
 RUN docker-php-ext-install mysqli
 RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/
 RUN docker-php-ext-install ldap
 RUN a2enmod rewrite expires
-
 COPY ./php-abesstp.ini /usr/local/etc/php/conf.d/php-abesstp.ini
+
+# copie des sources php d'abesstp
+COPY /src/svp-51/drupal-6.38-p7/ /var/www/html/
+RUN find /var/www/html/ -type f -exec chmod a+r {} \;
+RUN find /var/www/html/ -type f -exec chmod a-wx {} \;
+RUN find /var/www/html/ -type d -exec chmod a-w {} \;
+RUN find /var/www/html/ -type d -exec chmod a+rx {} \;
+
+# files/ contient les pièces jointes des tickets
+VOLUME /var/www/html/sites/stp.abes.fr/files/assistance/
 
 COPY ./docker-entrypoint.overload.sh /
 ENTRYPOINT ["/docker-entrypoint.overload.sh"]

@@ -1,6 +1,6 @@
+images/abesstp-web/src/*
 volumes/abesstp-db/*
-volumes/abesstp-web/**/files/assistance/*
-volumes/abesstp-web/**/files/js/*
+volumes/abesstp-web/files-assistance/*
 .env
 *.sql.gz
 *.sql

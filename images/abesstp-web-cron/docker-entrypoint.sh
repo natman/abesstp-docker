@@ -9,8 +9,8 @@ echo "$(env)
 LANG=en_US.UTF-8" > /etc/environment
 
 # vérification de la présence de files/assistance/
-if [ ! -d /var/www/drupal/sites/stp.abes.fr/files/assistance/ ]; then
-  echo "Erreur: impossible de lancer abesstp-web-cron car /var/www/drupal/sites/stp.abes.fr/files/assistance/ est introuvable" 
+if [ ! -d /var/www/html/sites/stp.abes.fr/files/assistance/ ]; then
+  echo "Erreur: impossible de lancer abesstp-web-cron car /var/www/html/sites/stp.abes.fr/files/assistance/ est introuvable" 
   sleep 2 && exit 1
 fi
 
