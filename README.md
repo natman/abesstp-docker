@@ -142,6 +142,9 @@ Les sauvegardes doivent être paramétrées sur ces répertoires clés :
 - la base de données : des dumps sont générés automatiquement toutes les nuits dans `/opt/pod/abesstp-docker/volumes/abesstp-db/dump/` 
 - le répertoire `/opt/pod/abesstp-docker/volumes/abesstp-web/files-assistance/` car on y retrouve les pièces jointes (fichiers) des tickets d'AbesSTP dans le sous répertoire `files/assistance/`
 
+Les chemins volumineux à d'exclure des sauvegardes sont les suivants :
+- ``/opt/pod/abesstp-docker/volumes/abesstp-db/mysql/*`` : car il contient les données binaires de la base de données mysql
+
 Pour restaurer les pièces jointes aux tickets AbesSTP depuis les sauvegardes :
 ```bash
 cd /opt/pod/abesstp-docker/
