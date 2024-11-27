@@ -23,6 +23,10 @@ git clone https://github.com/abes-esr/abesstp-docker/
 # pour qu'il puisse être embarqué dans l'image d'abesstp-web
 git submodule update --init --recursive
 
+# bascule sur la branche souhaité si déploiement en test ou prod (exemple ci-dessous sur branche develop pour test)
+git submodule update
+git submodule foreach --recursive git checkout develop
+
 # indiquez les mots de passes souhaités et les différents paramètres
 # en personnalisant le contenu de .env (ex: mot de passes mysql et param smtp)
 cp .env-dist .env
@@ -47,7 +51,7 @@ docker-compose build
 Pour déployer `abesstp-docker` en local, en dev ou en test il faut également lancer cette commande qui aura pour effet de générer un fichier `docker-compose.override.yml` qui mettra à disposition les outils phpmyadmin et mailhog dans des conteneurs dédiés (cf section plus bas) :
 ```bash
 cd /opt/pod/abesstp-docker/
-echo "version: '3'
+echo "
 services:
   # ajout du conteneur mailhog
   # avec surcharge des autres conteneurs
