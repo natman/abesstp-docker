@@ -1,3 +1,4 @@
 [submodule "images/abesstp-web/src"]
   path = images/abesstp-web/src
   url = https://git.abes.fr/depots/abesstp
+  update = merge
