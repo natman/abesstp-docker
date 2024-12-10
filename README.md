@@ -149,6 +149,13 @@ Les sauvegardes doivent être paramétrées sur ces répertoires clés :
 Les chemins volumineux à d'exclure des sauvegardes sont les suivants :
 - ``/opt/pod/abesstp-docker/volumes/abesstp-db/mysql/*`` : car il contient les données binaires de la base de données mysql
 
+Pour restaurer le .env depuis les sauvegardes :
+```bash
+cd /opt/pod/abesstp-docker/
+rsync -av \
+  sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/.env ./
+```
+
 Pour restaurer les pièces jointes aux tickets AbesSTP depuis les sauvegardes :
 ```bash
 cd /opt/pod/abesstp-docker/
@@ -168,7 +175,7 @@ rsync -ravL sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-
 sudo docker compose up -d abesstp-db
 
 # lancer la commande suivante pour reinitialiser la base de donnees a partir du dump
-gunzip -c latest.svp.sql.gz | docker exec -i abesstp-db bash -c 'mysql --user=root --password=$MYSQL_ROOT_PASSWORD svp'
+gunzip -c latest.svp.sql.gz | sudo docker exec -i abesstp-db bash -c 'mysql --user=root --password=$MYSQL_ROOT_PASSWORD svp'
 ```
 
 Pour mémo, si on souhaite sauvegarder ponctuellement la base de données, la commande suivante fait l'affaire :
