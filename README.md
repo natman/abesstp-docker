@@ -162,7 +162,7 @@ Pour restaurer la base de données depuis un dump :
 cd /opt/pod/abesstp-docker/
 
 # récupération du dump depuis le serveur de sauvegardes
-rsync -ravL sotora:/backup_pool/diplotaxis2-test/daily.0/racine/opt/pod/abesstp-docker/volumes/abesstp-db/dump/latest.svp.sql.gz .
+rsync -ravL sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/volumes/abesstp-db/dump/latest.svp.sql.gz .
 
 # s'assurer que le conteneur abesstp-db est lancé
 docker-compose up -d abesstp-db
