@@ -178,6 +178,8 @@ sudo docker compose up -d abesstp-db
 gunzip -c latest.svp.sql.gz | sudo docker exec -i abesstp-db bash -c 'mysql --user=root --password=$MYSQL_ROOT_PASSWORD svp'
 ```
 
+Il faut ensuite attendre 3 minutes avant que l'application soit denouveau UP (sinon la mire "Site off-line" de Drupal s'affiche).
+
 Pour mémo, si on souhaite sauvegarder ponctuellement la base de données, la commande suivante fait l'affaire :
 ```bash
 # generation du dump de la base de donnees
