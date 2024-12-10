@@ -165,7 +165,7 @@ cd /opt/pod/abesstp-docker/
 rsync -ravL sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/volumes/abesstp-db/dump/latest.svp.sql.gz .
 
 # s'assurer que le conteneur abesstp-db est lancé
-docker-compose up -d abesstp-db
+sudo docker compose up -d abesstp-db
 
 # lancer la commande suivante pour reinitialiser la base de donnees a partir du dump
 gunzip -c latest.svp.sql.gz | docker exec -i abesstp-db bash -c 'mysql --user=root --password=$MYSQL_ROOT_PASSWORD svp'
