@@ -142,6 +142,8 @@ Les configurations complètes et à jour se trouvent dans `/etc/httpd/conf.app/s
 
 ## Sauvegarde d'AbesSTP
 
+### Que faut il sauvegarder ?
+
 Les sauvegardes doivent être paramétrées sur ces répertoires clés :
 - la base de données : des dumps sont générés automatiquement toutes les nuits dans `/opt/pod/abesstp-docker/volumes/abesstp-db/dump/` 
 - le répertoire `/opt/pod/abesstp-docker/volumes/abesstp-web/files-assistance/` car on y retrouve les pièces jointes (fichiers) des tickets d'AbesSTP dans le sous répertoire `files/assistance/`
@@ -149,14 +151,29 @@ Les sauvegardes doivent être paramétrées sur ces répertoires clés :
 Les chemins volumineux à d'exclure des sauvegardes sont les suivants :
 - ``/opt/pod/abesstp-docker/volumes/abesstp-db/mysql/*`` : car il contient les données binaires de la base de données mysql
 
-Pour restaurer le .env depuis les sauvegardes :
+Pour mémo, si on souhaite sauvegarder ponctuellement la base de données, la commande suivante fait l'affaire :
+```bash
+# generation du dump de la base de donnees
+docker exec -i abesstp-db bash -c 'mysqldump --user=root --password=$MYSQL_ROOT_PASSWORD svp' > dump.sql
+```
+### Comment restaurer AbesSTP ?
+
+Vous pouvez soit procéder à une réinstallation complète de l'application (cf section plus haut), soit procéder à une restauration des données.
+
+Pour restaurer uniquement les données de l'application, commencez par vous positionner sur le serveur où l'on souhaite restaurer les données de l'application (ici diplotaxis2-test est pris comme exemple) :
+```bash
+ssh diplotaxis2-test
+cd /opt/pod/abesstp-docker/
+```
+
+Commencer par restaurer le ``.env`` depuis les sauvegardes (à noter que pour cette étape il faut demander au SIRE de lancer la commande `rsync`) :
 ```bash
 cd /opt/pod/abesstp-docker/
 rsync -av \
   sotora:/backup_pool/diplotaxis2-prod/daily.0/racine/opt/pod/abesstp-docker/.env ./
 ```
 
-Pour restaurer les pièces jointes aux tickets AbesSTP depuis les sauvegardes :
+Pour restaurer les pièces jointes aux tickets AbesSTP depuis les sauvegardes (à noter que pour cette étape il faut demander au SIRE de lancer la commande `rsync`) :
 ```bash
 cd /opt/pod/abesstp-docker/
 rsync -rav \
@@ -164,7 +181,7 @@ rsync -rav \
   ./volumes/abesstp-web/files-assistance/
 ```
 
-Pour restaurer la base de données depuis un dump :
+Pour restaurer la base de données depuis un dump (à noter que pour cette étape il faut demander au SIRE de lancer la commande `rsync`) :
 ```bash
 cd /opt/pod/abesstp-docker/
 
@@ -179,12 +196,6 @@ gunzip -c latest.svp.sql.gz | sudo docker exec -i abesstp-db bash -c 'mysql --us
 ```
 
 Il faut ensuite attendre 3 minutes avant que l'application soit denouveau UP (sinon la mire "Site off-line" de Drupal s'affiche).
-
-Pour mémo, si on souhaite sauvegarder ponctuellement la base de données, la commande suivante fait l'affaire :
-```bash
-# generation du dump de la base de donnees
-docker exec -i abesstp-db bash -c 'mysqldump --user=root --password=$MYSQL_ROOT_PASSWORD svp' > dump.sql
-```
 
 ## Debug d'AbesSTP
 
