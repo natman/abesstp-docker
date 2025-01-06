@@ -150,7 +150,8 @@ services:
       MYSQL_USER: root
       MYSQL_PASS: ${ABESSTP_MYSQL_ROOT_PASSWORD}
       MAX_BACKUPS: 15
-      INIT_BACKUP: 1
+      # INIT_BACKUP: If set, create a backup when the container starts.
+      INIT_BACKUP: 0
       # Every day at 03:00
       CRON_TIME: "0 3 * * *"
     labels:
