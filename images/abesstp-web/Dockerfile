@@ -29,6 +29,9 @@ RUN find /var/www/html/ -type d -exec chmod a+rx {} \;
 # files/ contient les pièces jointes des tickets
 VOLUME /var/www/html/sites/stp.abes.fr/files/assistance/
 
+RUN chgrp -R root /usr/local/etc/php /etc /var/www/html/sites/stp.abes.fr/files/assistance /var/www/html/sites/stp.abes.fr/files
+RUN chmod -R g+rwX /usr/local/etc/php /etc /var/www/html/sites/stp.abes.fr/files/assistance /var/www/html/sites/stp.abes.fr/files
+
 COPY ./docker-entrypoint.overload.sh /
 ENTRYPOINT ["/docker-entrypoint.overload.sh"]
 CMD ["apache2-foreground"]
