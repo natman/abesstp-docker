@@ -32,9 +32,9 @@ COPY ./msmtprc.notls.tmpl /etc/
 # script de comparaison de files/assistance/
 COPY ./lien.sh /usr/local/bin/lien.sh
 
-RUN apt-get update && apt-get install -y \
+RUN yum install -y \
     rsync \
- && rm -rf /var/lib/apt/lists/*
+ && yum clean all
 
 RUN chgrp -R root /etc /var/run
 RUN chmod -R g+rwX /etc /var/run
