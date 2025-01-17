@@ -29,6 +29,9 @@ RUN find /var/www/html/ -type d -exec chmod a+rx {} \;
 # files/ contient les pièces jointes des tickets
 VOLUME /var/www/html/sites/stp.abes.fr/files/assistance/
 
+# changement du port par défaut par un port non privilégié
+RUN sed -i 's/Listen\ 80/Listen\ 8080/g' ports.conf
+
 RUN chgrp -R root /usr/local/etc/php /etc /var/www/html/sites/stp.abes.fr/files/assistance /var/www/html/sites/stp.abes.fr/files
 RUN chmod -R g+rwX /usr/local/etc/php /etc /var/www/html/sites/stp.abes.fr/files/assistance /var/www/html/sites/stp.abes.fr/files
 
