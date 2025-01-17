@@ -34,7 +34,7 @@ RUN sed -i 's/Listen\ 80/Listen\ 8080/g' /etc/apache2/ports.conf
 
 RUN apt-get update && apt-get install -y \
     rsync \
- && rm -rf /var/lib/apt/lists/*```
+ && rm -rf /var/lib/apt/lists/*
 
 RUN chgrp -R root /usr/local/etc/php /etc /var/www/html/sites/stp.abes.fr/files/assistance /var/www/html/sites/stp.abes.fr/files
 RUN chmod -R g+rwX /usr/local/etc/php /etc /var/www/html/sites/stp.abes.fr/files/assistance /var/www/html/sites/stp.abes.fr/files
