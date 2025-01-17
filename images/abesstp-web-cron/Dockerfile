@@ -39,7 +39,7 @@ RUN yum install -y \
 RUN chgrp -R root /etc /var/run
 RUN chmod -R g+rwX /etc /var/run
 RUN chmod gu+rw /var/run /etc
-RUN chmod gu+s /usr/sbin/cron /etc
+RUN chmod gu+s /usr/sbin/crond /etc
 
 # gestion des cron dans docker inspirée de
 # https://sudonull.com/post/80071-Running-cron-inside-a-docker-container-Redmadrobots-blog
