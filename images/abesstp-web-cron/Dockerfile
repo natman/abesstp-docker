@@ -1,4 +1,4 @@
-FROM rockylinux:8.9
+FROM almalinux:8
 
 # vim: pour debug de l'image plus facile
 RUN yum install -y vim
