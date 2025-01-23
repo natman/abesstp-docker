@@ -47,5 +47,4 @@ RUN chown nobody:nobody /usr/sbin/crond && \
 # https://sudonull.com/post/80071-Running-cron-inside-a-docker-container-Redmadrobots-blog
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
-USER nobody
 CMD ["crond", "-n"]
