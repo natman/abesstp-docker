@@ -40,7 +40,8 @@ RUN chgrp -R root /etc /var/run
 RUN chmod -R g+rwX /etc /var/run
 RUN chmod gu+rw /var/run /etc
 RUN chmod gu+s /usr/sbin/crond
-RUN setcap cap_setgid=ep /usr/sbin/crond
+RUN chown nobody:nobody /usr/sbin/crond && \
+    setcap cap_setgid=ep /usr/sbin/crond
 
 # gestion des cron dans docker inspirée de
 # https://sudonull.com/post/80071-Running-cron-inside-a-docker-container-Redmadrobots-blog
