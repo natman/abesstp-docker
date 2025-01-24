@@ -36,11 +36,13 @@ RUN yum install -y \
     rsync \
  && yum clean all
 
-RUN chgrp -R root /etc /var/run
-RUN chmod -R g+rwX /etc /var/run
-RUN chmod gu+rw /var/run /etc /var/spool/cron/ 
-RUN chmod u+s /usr/bin/crontab  && \
+RUN chgrp -R root /etc /var/run && \
+    chmod -R g+rwX /etc /var/run
+RUN chmod gu+rw /var/run /etc /var/spool/cron/ && \    
+    chmod g+s,u-s /usr/bin/crontab && \
     sed -i -s 's/^\(account\s\+include\s\+password-auth\)$/#\1/' /etc/pam.d/crond
+RUN chmod gu+s /usr/sbin/crond && \
+    setcap cap_setgid=ep /usr/sbin/crond
 
 # gestion des cron dans docker inspirée de
 # https://sudonull.com/post/80071-Running-cron-inside-a-docker-container-Redmadrobots-blog
