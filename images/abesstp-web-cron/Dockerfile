@@ -38,9 +38,8 @@ RUN yum install -y \
 
 RUN chgrp -R root /etc /var/run
 RUN chmod -R g+rwX /etc /var/run
-RUN chmod gu+rw /var/run /etc
-RUN chmod 777 /var/spool/cron/ /var/run/ && \
-    chmod u+s /usr/bin/crontab /lib64/libnss_wrapper.so* /lib64/libuid_wrapper.so* && \
+RUN chmod gu+rw /var/run /etc /var/spool/cron/ 
+RUN chmod u+s /usr/bin/crontab  && \
     sed -i -s 's/^\(account\s\+include\s\+password-auth\)$/#\1/' /etc/pam.d/crond
 
 # gestion des cron dans docker inspirée de
